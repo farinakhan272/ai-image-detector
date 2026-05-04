@@ -97,18 +97,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
-            let data;
+            const text = await response.text();
+            let data = null;
+
             try {
-                data = await response.json();
+                data = text ? JSON.parse(text) : null;
             } catch (parseError) {
-                const text = await response.text();
-                displayError('Unexpected response from server', text);
+                displayError('Unexpected response from server', text || parseError.message);
                 throw new Error('Unexpected response from server');
             }
 
             if (!response.ok) {
-                const errorMessage = data.error || 'Analysis failed';
-                const errorTrace = data.trace || data.message || null;
+                const errorMessage = data?.error || 'Analysis failed';
+                const errorTrace = data?.trace || data?.message || text;
                 displayError(errorMessage, errorTrace);
                 throw new Error(errorMessage);
             }
