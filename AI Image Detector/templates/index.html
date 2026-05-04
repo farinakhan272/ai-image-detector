@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Vision - AI Image Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="sparkle">✨</span>
+                <h1>Aura Vision</h1>
+            </div>
+            <p class="subtitle">Authenticity Scanner</p>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">📜</span> History
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">🗄️</span> Database
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>v2.0 Web Edition</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2>Content Analysis</h2>
+            </header>
+
+            <div class="analysis-grid">
+                <!-- Upload Section -->
+                <section class="panel upload-panel">
+                    <h3>1. Select Media</h3>
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="preview-container" id="preview-container">
+                            <div class="placeholder">
+                                <span class="upload-icon">📸</span>
+                                <p>Drop image here or click to browse</p>
+                                <span class="small-text">Supports JPG, PNG, WEBP</span>
+                            </div>
+                            <img id="image-preview" src="" alt="Preview" class="hidden">
+                        </div>
+                        <input type="file" id="file-input" hidden accept="image/*">
+                    </div>
+                    <button id="browse-btn" class="btn btn-primary">Browse Files</button>
+                </section>
+
+                <!-- Results Section -->
+                <section class="panel results-panel">
+                    <h3>2. Analysis Progress</h3>
+                    
+                    <div class="status-box">
+                        <p id="status-text">Ready to scan</p>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="result-cards">
+                        <div class="card" id="ai-card">
+                            <div class="card-header">
+                                <span class="card-icon">🤖</span>
+                                <h4>AI Generation Scan</h4>
+                            </div>
+                            <p class="card-value" id="ai-result">Pending</p>
+                        </div>
+
+                        <div class="card" id="duplicate-card">
+                            <div class="card-header">
+                                <span class="card-icon">👯</span>
+                                <h4>Duplication Check</h4>
+                            </div>
+                            <p class="card-value" id="duplicate-result">Pending</p>
+                        </div>
+                    </div>
+
+                    <div class="confidence-tracker">
+                        <p id="confidence-label">Confidence Score Tracker</p>
+                        <div class="confidence-score" id="confidence-score">--%</div>
+                    </div>
+
+                    <div class="details-panel hidden" id="details-panel">
+                        <h4>Analysis Layers</h4>
+                        <div class="detail-row">
+                            <span>Frequency</span>
+                            <div class="mini-bar"><div id="bar-frequency" class="bar-fill"></div></div>
+                        </div>
+                        <div class="detail-row">
+                            <span>Noise Pattern</span>
+                            <div class="mini-bar"><div id="bar-noise" class="bar-fill"></div></div>
+                        </div>
+                        <div class="detail-row">
+                            <span>Color Entropy</span>
+                            <div class="mini-bar"><div id="bar-color" class="bar-fill"></div></div>
+                        </div>
+                        <div class="detail-row">
+                            <span>Metadata</span>
+                            <div class="mini-bar"><div id="bar-metadata" class="bar-fill"></div></div>
+                        </div>
+                    </div>
+
+                    <button id="analyze-btn" class="btn btn-primary btn-large" disabled>Start Analysis</button>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Overlay Loader -->
+    <div id="loader" class="loader-overlay hidden">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p>Analyzing pixels...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
