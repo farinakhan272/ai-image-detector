@@ -10,6 +10,7 @@ from PIL import Image
 from scipy import fftpack, signal
 from scipy.ndimage import gaussian_filter
 from scipy.stats import entropy
+from werkzeug.exceptions import HTTPException
 import traceback
 
 # Try to import advanced libraries
@@ -31,6 +32,19 @@ except Exception as e:
 
 app = Flask(__name__)
 CORS(app)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    status_code = 500
+    if isinstance(e, HTTPException):
+        status_code = e.code
+    trace = traceback.format_exc()
+    print(f"Unhandled exception: {e}\n{trace}")
+    return jsonify({
+        "error": str(e),
+        "trace": trace
+    }), status_code
 
 # Configuration
 UPLOAD_FOLDER = 'uploads'
@@ -259,6 +273,14 @@ db = ImageDatabase()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/health')
+def health():
+    return jsonify({
+        "status": "ok",
+        "message": "Backend is running",
+        "timestamp": datetime.utcnow().isoformat() + 'Z'
+    })
 
 @app.route('/analyze', methods=['POST'])
 def analyze():

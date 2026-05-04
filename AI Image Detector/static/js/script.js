@@ -97,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
-            const text = await response.text();
+            console.log('analyze response', response.status, response.bodyUsed);
+            const text = await response.clone().text();
             let data = null;
 
             try {
