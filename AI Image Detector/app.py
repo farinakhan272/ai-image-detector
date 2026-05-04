@@ -15,7 +15,8 @@ from scipy.stats import entropy
 try:
     import cv2
     CV2_AVAILABLE = True
-except ImportError:
+except Exception as e:
+    print(f"cv2 import unavailable: {e}")
     CV2_AVAILABLE = False
 
 try:
@@ -23,7 +24,8 @@ try:
     import torch.nn as nn
     from torchvision import models, transforms
     PYTORCH_AVAILABLE = True
-except ImportError:
+except Exception as e:
+    print(f"PyTorch import unavailable: {e}")
     PYTORCH_AVAILABLE = False
 
 app = Flask(__name__)
@@ -113,7 +115,11 @@ class AIDetector:
 
     @classmethod
     def initialize(cls):
-        if PYTORCH_AVAILABLE and cls.model is None:
+        if not PYTORCH_AVAILABLE:
+            print("PyTorch unavailable: neural analysis disabled")
+            return
+
+        if cls.model is None:
             try:
                 cls.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
                 cls.model = models.efficientnet_b0(weights='DEFAULT')
@@ -127,6 +133,7 @@ class AIDetector:
                 print("NN Neural Network initialized")
             except Exception as e:
                 print(f"Neural Network failed: {e}")
+                cls.model = None
 
     @staticmethod
     def analyze(image_path):
