@@ -203,6 +203,22 @@ body {
 #status-text {
     font-size: 0.875rem;
     color: var(--text-sub);
+}
+
+#error-log {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 100, 100, 0.08);
+    border: 1px solid rgba(255, 80, 80, 0.16);
+    color: var(--danger);
+    font-size: 0.825rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
     margin-bottom: 0.5rem;
 }
 

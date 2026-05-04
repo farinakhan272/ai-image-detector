@@ -10,6 +10,7 @@ from PIL import Image
 from scipy import fftpack, signal
 from scipy.ndimage import gaussian_filter
 from scipy.stats import entropy
+import traceback
 
 # Try to import advanced libraries
 try:
@@ -271,28 +272,39 @@ def analyze():
     # Save file
     filename = f"{int(time.time())}_{file.filename}"
     filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
-    
-    # Process
-    phash, dhash = ImageHasher.compute_hashes(filepath)
-    duplicates = db.find_duplicates(phash, dhash)
-    ai_score, details = AIDetector.analyze(filepath)
-    
-    # Convert numpy types to standard Python types for JSON serialization
-    ai_score = float(ai_score)
-    is_ai = bool(ai_score > 50)
-    
-    # Add to DB
-    db.add(filename, phash, dhash, is_ai)
-    
-    return jsonify({
-        "filename": filename,
-        "ai_score": round(ai_score, 2),
-        "ai_details": {k: float(v) for k, v in details.items()},
-        "is_ai": is_ai,
-        "duplicates": duplicates,
-        "is_duplicate": len(duplicates) > 0
-    })
+    try:
+        file.save(filepath)
+
+        # Process
+        phash, dhash = ImageHasher.compute_hashes(filepath)
+        if phash is None or dhash is None:
+            raise ValueError('Failed to compute image hashes')
+
+        duplicates = db.find_duplicates(phash, dhash)
+        ai_score, details = AIDetector.analyze(filepath)
+
+        # Convert numpy types to standard Python types for JSON serialization
+        ai_score = float(ai_score)
+        is_ai = bool(ai_score > 50)
+
+        # Add to DB
+        db.add(filename, phash, dhash, is_ai)
+
+        return jsonify({
+            "filename": filename,
+            "ai_score": round(ai_score, 2),
+            "ai_details": {k: float(v) for k, v in details.items()},
+            "is_ai": is_ai,
+            "duplicates": duplicates,
+            "is_duplicate": len(duplicates) > 0
+        })
+    except Exception as e:
+        trace = traceback.format_exc()
+        print(f"Analyze error: {e}\n{trace}")
+        return jsonify({
+            "error": str(e),
+            "trace": trace
+        }), 500
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

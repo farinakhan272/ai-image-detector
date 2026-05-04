@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiCard = document.getElementById('ai-card');
     const duplicateCard = document.getElementById('duplicate-card');
     const confidenceScore = document.getElementById('confidence-score');
+    const errorLog = document.getElementById('error-log');
     const loader = document.getElementById('loader');
 
     let selectedFile = null;
@@ -70,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
         duplicateCard.className = 'card';
         confidenceScore.innerText = '--%';
         confidenceScore.style.color = 'var(--text-sub)';
+        errorLog.classList.add('hidden');
+        errorLog.innerText = '';
     }
 
     // --- Analysis ---
@@ -94,10 +97,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
-            if (!response.ok) throw new Error('Analysis failed');
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                const text = await response.text();
+                displayError('Unexpected response from server', text);
+                throw new Error('Unexpected response from server');
+            }
+
+            if (!response.ok) {
+                const errorMessage = data.error || 'Analysis failed';
+                const errorTrace = data.trace || data.message || null;
+                displayError(errorMessage, errorTrace);
+                throw new Error(errorMessage);
+            }
 
             updateProgress(70);
-            const data = await response.json();
             
             setTimeout(() => {
                 updateProgress(100);
@@ -108,8 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 800);
 
         } catch (error) {
-            console.error(error);
-            statusText.innerText = 'Error: ' + error.message;
+            console.error('Analysis request failed', error);
+            if (!errorLog.innerText) {
+                displayError(error.message || 'Analysis failed');
+            }
             loader.classList.add('hidden');
             analyzeBtn.disabled = false;
             browseBtn.disabled = false;
@@ -118,6 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateProgress(percent) {
         progressBar.style.width = percent + '%';
+    }
+
+    function displayError(message, trace) {
+        statusText.innerText = 'Error: ' + message;
+        errorLog.classList.remove('hidden');
+        errorLog.innerText = trace ? `${message}\n\n${trace}` : message;
+        analyzeBtn.disabled = false;
+        browseBtn.disabled = false;
     }
 
     function displayResults(data) {
